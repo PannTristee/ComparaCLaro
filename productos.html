@@ -148,9 +148,8 @@
   const search = document.querySelector("#model-search");
   const filter = document.querySelector("#category-filter");
   const resultStatus = document.querySelector("#model-results");
-  const grid = document.querySelector("#modelos");
   const cards = [...document.querySelectorAll(".model-card")];
-  const normalize = value => (value || "").normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").toLocaleLowerCase("es");
+  const normalize = value => (value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("es");
   cards.forEach(card => {
     const title = card.querySelector("h2")?.textContent || "";
     const link = card.querySelector('a[href*="amazon.es"]');
