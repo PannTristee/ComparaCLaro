@@ -2561,15 +2561,53 @@
       showEmpty("Los productos deben pertenecer a la categoría seleccionada. Cambia la categoría o vuelve a elegir los modelos.");
       return;
     }
-    const cards = chosen.map(product => {
-      const specs = product.desc || "El catálogo no tiene una descripción técnica suficiente para este modelo.";
+    const specRules = [
+      ["Pantalla", /pantalla|display|\bips\b|amoled|oled|qled|mini.?led|pulgadas|\bHz\b|nits|resoluci[oó]n|ppi/i],
+      ["Procesador", /procesador|cpu|chipset|snapdragon|dimensity|tensor|intel core|ryzen|apple m\d|exynos|mediatek/i],
+      ["Gráficos", /gr[aá]fica|gpu|geforce|radeon|rtx \d|iris xe/i],
+      ["Memoria RAM", /\b\d+\s?gb\s?(?:de )?ram|memoria ram|ram instalada/i],
+      ["Almacenamiento", /almacenamiento|\bssd\b|\bhdd\b|\d+\s?gb (?:de )?(?:almacenamiento|memoria interna)|\d+\s?tb/i],
+      ["Cámara", /c[aá]mara|\bmp\b|megap[ií]xeles|sensor|lente|zoom/i],
+      ["Batería y carga", /bater[ií]a|\bmah\b|autonom[ií]a|carga (?:r[aá]pida|de)|\bw\b/i],
+      ["Conectividad", /wi-?fi|\bbluetooth\b|\b5g\b|\b4g\b|\bnfc\b|ethernet|usb-c|usb 3|hdmi|displayport/i],
+      ["Audio", /audio|altavoz|auricular|micr[oó]fono|\bdolby\b|\banc\b/i],
+      ["Sistema operativo", /android|ios|windows|linux|\bmacos\b|hyper ?os|sistema operativo|sin sistema operativo/i],
+      ["Protección", /\bip\d{2}\b|resistencia al agua|gorilla glass|resistente a/i],
+      ["Dimensiones y peso", /dimensiones|\bmm\b|\bcm\b|\bkg\b|\bgramos\b|\bg\b de peso|peso /i],
+      ["Capacidad", /\blitros?\b|\bml\b|\bmah\b|capacidad|hojas|volumen/i],
+      ["Potencia y rendimiento", /\b\d{3,4}\s?w\b|potencia|rpm|velocidad|\blm\b|lumens/i],
+      ["Funciones", /detecci[oó]n|seguimiento|programas|modos|temporizador|impresi[oó]n|esc[aá]ner|resoluci[oó]n de impresi[oó]n/i]
+    ];
+    function getSpecs(product) {
+      const raw = String(product.desc || "").split(/[;•]|\\. (?=[A-ZÁÉÍÓÚ0-9])/).map(x => x.trim()).filter(Boolean);
+      const entries = [];
+      const used = new Set();
+      raw.forEach(piece => {
+        let label = "Otros datos técnicos";
+        for (const rule of specRules) if (rule[1].test(piece)) { label = rule[0]; break; }
+        if (used.has(label)) label = "Otros datos técnicos " + (entries.filter(x => x.label.startsWith("Otros datos técnicos")).length + 1);
+        used.add(label);
+        entries.push({label, value: piece.replace(/[.]$/, "")});
+      });
+      if (!entries.length) entries.push({label:"Especificaciones",value:"No hay datos técnicos verificados suficientes"});
+      return entries;
+    }
+    const specSets = chosen.map(product => ({product, specs:getSpecs(product)}));
+    const allLabels = [...new Set(specSets.flatMap(item => item.specs.map(spec => spec.label)))];
+    const comparisonRows = allLabels.map(label => '<tr><th scope="row">' + esc(label) + '</th>' + specSets.map(item => {
+      const spec = item.specs.find(x => x.label === label);
+      return '<td>' + (spec ? esc(spec.value) : '<span class="compare-status">No indicado en la ficha</span>') + '</td>';
+    }).join("") + '</tr>').join("");
+    const compareTable = '<div class="compare-table-wrap"><table class="compare-table"><thead><tr><th scope="col">Característica</th>' + chosen.map(product => '<th scope="col">' + esc(product.title) + '</th>').join("") + '</tr></thead><tbody>' + comparisonRows + '</tbody></table></div>';
+    const cards = specSets.map(({product, specs}) => {
+      const specList = specs.map(spec => '<li><strong>' + esc(spec.label) + ':</strong> ' + esc(spec.value) + '</li>').join("");
       const officialLink = product.officialUrl
         ? '<p><a href="' + esc(product.officialUrl) + '" target="_blank" rel="noopener noreferrer">Ver ficha del fabricante ↗</a></p>' : "";
       const amazonLink = product.link
         ? '<p><a href="' + esc(product.link) + '" target="_blank" rel="sponsored nofollow noopener noreferrer">Consultar modelo en Amazon ↗</a></p>' : "";
-      return '<article class="compare-product"><h3>' + esc(product.title) + '</h3><h4>Especificaciones técnicas</h4><p>' + esc(specs) + '</p><p class="price-record"><strong>Precio:</strong> ' + esc(product.price || "No verificado; consulta la tienda oficial") + '</p>' + officialLink + amazonLink + '</article>';
+      return '<article class="compare-product"><h3>' + esc(product.title) + '</h3><h4>Especificaciones por característica</h4><ul class="device-specs">' + specList + '</ul><p class="price-record"><strong>Precio registrado:</strong> ' + esc(product.price || "No verificado; consulta la tienda") + '</p>' + officialLink + amazonLink + '</article>';
     }).join("");
-    results.innerHTML = '<h2>Comparación de ' + chosen.length + ' productos</h2><div class="compare-grid">' + cards + '</div><p class="compare-note">Compara la variante exacta antes de comprar. Los precios y la disponibilidad pueden cambiar; si el fabricante no publica un precio verificable, se indica en la ficha.</p>';
+    results.innerHTML = '<h2>Comparación de ' + chosen.length + ' productos</h2><h3>Tabla comparativa por característica</h3>' + compareTable + '<h3>Ficha individual de cada producto</h3><div class="compare-grid">' + cards + '</div><p class="compare-note">Las filas se extraen de los datos disponibles en cada ficha. «No indicado» significa que el catálogo no contiene ese dato; no implica que el producto carezca de esa característica. Los precios y la disponibilidad pueden cambiar.</p>';
     status.textContent = "Comparación lista: " + chosen.length + " modelos de " + categorySelect.value + ".";
     results.scrollIntoView({ behavior: "smooth", block: "start" });
   }
