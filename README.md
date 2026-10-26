@@ -7,10 +7,11 @@ Sitio estático en español para orientar compras de tecnología con guías prá
 ## Cómo funciona ahora
 - Web estática, sin servidor propio ni costes de hosting.
 - Catálogo editorial de categorías con búsqueda y filtro.
-- Catálogo de 91 fichas de modelos con búsqueda por nombre, categoría y términos del enlace.
+- Catálogo ampliado a 211 modelos, priorizando móviles, portátiles y consolas/gaming.
+- Catálogo de 211 fichas de modelos con búsqueda por nombre, categoría y términos del enlace. Incluye 50 móviles, 46 portátiles y 44 fichas de consolas y gaming.
 - Guías de compra en `guias/`.
 - Enlaces de afiliación a búsquedas de Amazon, identificados en la interfaz; no hay precios ni disponibilidad en tiempo real.
-- Fotografías específicas cuando hay una referencia de modelo identificable; las imágenes pendientes de verificar se marcan explícitamente, sin sustituirlas por fotos genéricas.
+- Fotografías específicas para las fichas existentes que tenían imagen pendiente y para nuevos modelos seleccionados. Las imágenes que aún no se han podido verificar se marcan explícitamente, sin sustituirlas por fotos genéricas.
 - Publicación automática mediante GitHub Actions y GitHub Pages.
 
 ## Publicación
