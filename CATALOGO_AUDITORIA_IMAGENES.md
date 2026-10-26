@@ -34,3 +34,29 @@ La página de términos de Samsung Mobile Press limita el uso de sus materiales 
 ## Próxima tanda recomendada
 
 Priorizar 15 fichas de mayor intención de compra (móviles, portátiles, auriculares, tablets y consolas), obtener imágenes autorizadas y validar los enlaces. Después continuar por lotes para evitar asociar una fotografía al modelo equivocado.
+
+
+# Catálogo y experiencia móvil — lote de octubre de 2026
+
+Rama: `mejora-catalogo-visual-2026-10`  
+Estado: propuesta de cambios; no desplegada.
+
+## Ampliación del catálogo
+
+Se añadieron 17 fichas de variantes concretas para facilitar búsquedas más precisas (capacidades, colores, kits o packs). Cada una tiene una fotografía asociada al modelo o familia indicada, texto alternativo, carga diferida y un enlace de origen visible. Se mantienen los precios como «Consultar precio actual» para no presentar cotizaciones antiguas como actuales.
+
+## Imágenes y derechos
+
+Las URLs de imagen corresponden a páginas de fabricante o distribuidores que muestran los modelos indicados. Eso permite revisar la correspondencia visual, pero **no confirma por sí solo permiso de reutilización comercial**. Antes de fusionar y publicar, hay que validar las condiciones de uso de cada imagen y sustituir las que no tengan licencia compatible. No se han añadido fotos genéricas para fingir que son productos concretos.
+
+## Mejora móvil
+
+- Navegación adaptable en varias líneas con desplazamiento horizontal cuando sea necesario.
+- Mejor espaciado y tamaño de controles para búsqueda y filtros.
+- Tarjetas que se ajustan a dos columnas en móvil ancho y una columna en pantallas estrechas.
+- Imágenes responsivas, botones de compra/consulta con mayor área táctil y textos que no fuerzan desbordamientos.
+- Respeto a la preferencia del sistema de reducir movimiento.
+
+## Límites de la verificación
+
+Se ha hecho una comprobación estructural del HTML y CSS editados, no una prueba visual automatizada en una matriz real de navegadores/dispositivos. Antes de fusionar conviene revisar al menos 360 px, 390 px, 768 px y escritorio, comprobar las URLs de imágenes y validar los permisos de reutilización.
