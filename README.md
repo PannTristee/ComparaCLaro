@@ -7,9 +7,11 @@ Sitio estático en español para orientar compras de tecnología con guías prá
 ## Cómo funciona ahora
 - Web estática, sin servidor propio ni costes de hosting.
 - Catálogo editorial de categorías con búsqueda y filtro.
+- Catálogo de 91 fichas de modelos con búsqueda por nombre, categoría y términos del enlace.
 - Guías de compra en `guias/`.
+- Enlaces de afiliación a búsquedas de Amazon, identificados en la interfaz; no hay precios ni disponibilidad en tiempo real.
+- Fotografías específicas cuando hay una referencia de modelo identificable; las imágenes pendientes de verificar se marcan explícitamente, sin sustituirlas por fotos genéricas.
 - Publicación automática mediante GitHub Actions y GitHub Pages.
-- No hay precios en tiempo real ni enlaces de afiliación activos. Las tarjetas llevan a guías, no a ofertas verificadas.
 
 ## Publicación
 El flujo `.github/workflows/pages.yml` publica el contenido de la raíz mediante GitHub Actions. Para revisar el resultado, consulta la pestaña **Actions** del repositorio y abre la web publicada.
