@@ -2607,9 +2607,11 @@
       const specList = specs.map(spec => '<li><strong>' + esc(spec.label) + ':</strong> ' + esc(spec.value) + '</li>').join("");
       const officialLink = product.officialUrl
         ? '<p><a href="' + esc(product.officialUrl) + '" target="_blank" rel="noopener noreferrer">Ver ficha del fabricante ↗</a></p>' : "";
+      const priceSourceLink = product.priceSource
+        ? '<p><a href="' + esc(product.priceSource) + '" target="_blank" rel="noopener noreferrer">Fuente del precio ↗</a></p>' : "";
       const amazonLink = product.link
         ? '<p><a href="' + esc(product.link) + '" target="_blank" rel="sponsored nofollow noopener noreferrer">Consultar modelo en Amazon ↗</a></p>' : "";
-      return '<article class="compare-product"><h3>' + esc(product.title) + '</h3><h4>Especificaciones por característica</h4><ul class="device-specs">' + specList + '</ul><p class="price-record"><strong>Precio registrado:</strong> ' + esc(product.price || "No verificado; consulta la tienda") + '</p>' + officialLink + amazonLink + '</article>';
+      return '<article class="compare-product"><h3>' + esc(product.title) + '</h3><h4>Especificaciones por característica</h4><ul class="device-specs">' + specList + '</ul><p class="price-record"><strong>Precio registrado:</strong> ' + esc(product.price || "No verificado; consulta la tienda") + '</p>' + priceSourceLink + officialLink + amazonLink + '</article>';
     }).join("");
     results.innerHTML = '<h2>Comparación de ' + chosen.length + ' productos</h2><h3>Tabla comparativa por característica</h3>' + compareTable + '<h3>Ficha individual de cada producto</h3><div class="compare-grid">' + cards + '</div><p class="compare-note">Las filas se extraen de los datos disponibles en cada ficha. «No indicado» significa que el catálogo no contiene ese dato; no implica que el producto carezca de esa característica. Los precios y la disponibilidad pueden cambiar.</p>';
     status.textContent = "Comparación lista: " + chosen.length + " modelos de " + categorySelect.value + ".";
