@@ -1463,7 +1463,7 @@
       img.addEventListener("error", () => {
         if (!triedProxy && originalSrc && /^https?:/i.test(originalSrc)) {
           triedProxy = true;
-          img.src = "https://images.weserv.nl/?url=" + encodeURIComponent(originalSrc.replace(/^https?:\\/\\//i, "")) + "&w=600&h=600&fit=contain";
+          img.src = "https://images.weserv.nl/?url=" + encodeURIComponent(originalSrc.replace(/^https?:\/\//i, "")) + "&w=600&h=600&fit=contain";
           return;
         }
         const fallback = document.createElement("div");
