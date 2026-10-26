@@ -2414,8 +2414,9 @@
  const categories=[...new Set(products.map(p=>p.cat))].sort((a,b)=>a.localeCompare(b,"es"));
  categories.forEach(c=>{const o=document.createElement("option");o.value=c;o.textContent=c;type.append(o)});
  type.value="";
+ type.required=true;
  const esc=s=>String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
- function filtered(){return products.filter(p=>!type.value||p.cat===type.value)}
+ function filtered(){return type.value?products.filter(p=>p.cat===type.value):[]}
  function renderTabs(){
   tabs.innerHTML="";panels.innerHTML="";
   for(let i=0;i<4;i++){
@@ -2424,11 +2425,12 @@
    b.addEventListener("click",()=>{active=i;renderTabs()});tabs.append(b);
    const panel=document.createElement("div");panel.className="slot-panel";panel.hidden=active!==i;panel.setAttribute("role","tabpanel");
    if(active===i){
+    if(!type.value){const prompt=document.createElement("p");prompt.className="compare-empty";prompt.textContent="Primero selecciona una categoría. Después podrás buscar modelos de esa categoría.";panel.append(prompt);panels.append(panel);continue;}
     const label=document.createElement("label");label.textContent="2. Busca y elige el modelo para la pestaña "+(i+1);panel.append(label);
     const input=document.createElement("input");input.className="slot-search";input.type="search";input.placeholder="Buscar por nombre de modelo…";input.setAttribute("aria-label","Buscar modelo");panel.append(input);
     const list=document.createElement("div");list.className="model-options";panel.append(list);
     const draw=()=>{const q=input.value.trim().toLocaleLowerCase("es");const available=filtered().filter(p=>(!q||p.title.toLocaleLowerCase("es").includes(q))&&(!selected.some((x,j)=>j!==i&&x&&x.id===p.id)));
-      list.innerHTML="";available.slice(0,80).forEach(p=>{const btn=document.createElement("button");btn.type="button";btn.className="model-option";btn.innerHTML="<span>"+esc(p.title)+"<small>"+esc(p.price||"Precio no disponible")+"</small></span>";btn.addEventListener("click",()=>{selected[i]=p;active=Math.min(i+1,3);renderTabs();status.textContent="Seleccionados: "+selected.filter(Boolean).length+" de 4. Puedes añadir más modelos o comparar ya."});list.append(btn)});
+      list.innerHTML="";available.forEach(p=>{const btn=document.createElement("button");btn.type="button";btn.className="model-option";btn.innerHTML="<span>"+esc(p.title)+"<small>"+esc(p.price||"Precio no disponible")+"</small></span>";btn.addEventListener("click",()=>{selected[i]=p;active=Math.min(i+1,3);renderTabs();status.textContent="Seleccionados: "+selected.filter(Boolean).length+" de 4. Puedes añadir más modelos o comparar ya."});list.append(btn)});
       if(!available.length)list.innerHTML='<p class="compare-status">No hay coincidencias en esta categoría.</p>';
     };input.addEventListener("input",draw);draw();
    }
@@ -2488,6 +2490,8 @@
  }
  function compare(){
   const ps=selected.filter(Boolean);
+  if(!type.value){results.innerHTML='<div class="compare-empty">Selecciona primero una categoría y después los productos.</div>';status.textContent="Selecciona una categoría para empezar.";return}
+  if(ps.some(p=>p.cat!==type.value)){selected.forEach((p,i)=>{if(p&&p.cat!==type.value)selected[i]=null});renderTabs();results.innerHTML='<div class="compare-empty">Elige productos de la categoría seleccionada.</div>';status.textContent="Solo se comparan productos de la categoría seleccionada.";return}
   if(ps.length<2){results.innerHTML='<div class="compare-empty">Selecciona al menos dos modelos para compararlos.</div>';status.textContent="Necesitas al menos 2 productos.";return}
   const officialSearch=p=>{
    if(p.officialUrl)return p.officialUrl;
@@ -2559,7 +2563,7 @@
   results.innerHTML='<h2>Tu comparación</h2><div class="compare-grid">'+cards+'</div><div class="compare-verdict"><h3>¿Cuál es mejor?</h3><p>'+esc(verdict)+'</p></div>';
   status.textContent="Comparando "+ps.length+" productos. Los datos se extraen de las fichas disponibles; los precios oficiales se deben confirmar en el fabricante y no se inventan cuando no están publicados.";
  }
- type.addEventListener("change",()=>{active=selected.findIndex(x=>!x);if(active<0)active=3;renderTabs();results.innerHTML='<div class="compare-empty">La selección se conserva al cambiar de filtro. Puedes comparar productos de categorías distintas; las prestaciones solo se comparan cuando son equivalentes.</div>';status.textContent=(type.value?"Filtro de categoría: "+type.value+". ":"Mostrando todas las categorías. ")+selected.filter(Boolean).length+" producto(s) ya seleccionado(s). Añade modelos en las pestañas."});
+ type.addEventListener("change",()=>{selected.forEach((p,i)=>{if(p&&p.cat!==type.value)selected[i]=null});active=selected.findIndex(x=>!x);if(active<0)active=0;renderTabs();results.innerHTML='<div class="compare-empty">'+(type.value?"Busca y selecciona al menos dos productos de "+esc(type.value)+".":"Selecciona una categoría para empezar.")+'</div>';status.textContent=type.value?"Categoría seleccionada: "+type.value+". Elige al menos dos productos de esta categoría.":"Selecciona una categoría antes de buscar productos."});
  document.querySelector("#compare-now").addEventListener("click",compare);
  document.querySelector("#clear-all").addEventListener("click",()=>{selected.fill(null);active=0;renderTabs();results.innerHTML='<div class="compare-empty">Tu comparación aparecerá aquí cuando elijas al menos dos productos.</div>';status.textContent="Selección borrada. Puedes elegir hasta cuatro modelos."});
  renderTabs();
