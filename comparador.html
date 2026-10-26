@@ -179,7 +179,7 @@
     verdict+="Mejor elección: depende de qué priorices; no hay ganador absoluto con los datos disponibles.";
    }
   }
-  results.innerHTML='<h2>Tu comparación</h2><div class="compare-grid">'+cards+'</div><div class="compare-verdict"><h3>¿Cuál es mejor?</h3><p>'+esc(verdict)+'</p><p>Los precios de referencia antiguos no se presentan como precios oficiales vigentes. Usa el enlace de fabricante de cada ficha para comprobar precio y variante; si el fabricante no publica precio en España, no debe inventarse uno.</p></div>';
+  results.innerHTML='<h2>Tu comparación</h2><div class="compare-grid">'+cards+'</div><div class="compare-verdict"><h3>¿Cuál es mejor?</h3><p>'+esc(verdict)+'</p></div>';
   status.textContent="Comparando "+ps.length+" productos. Los datos se extraen de las fichas disponibles; los precios oficiales se deben confirmar en el fabricante y no se inventan cuando no están publicados.";
  }
  type.addEventListener("change",()=>{selected.fill(null);active=0;renderTabs();results.innerHTML='<div class="compare-empty">Elige hasta cuatro modelos de la categoría seleccionada.</div>';status.textContent="Categoría: "+type.value+". Selecciona modelos en las cuatro pestañas."});
