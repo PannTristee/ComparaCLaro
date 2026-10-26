@@ -1456,7 +1456,16 @@
     card.dataset.search = normalize([title, card.dataset.category, card.textContent, linkedTerms].join(" "));
     const img = card.querySelector("img.model-image");
     if (img) {
+      // Si la tienda de origen bloquea el hotlink o falla su CDN, intenta cargar
+      // la misma foto a través del proxy de imágenes antes de mostrar un aviso.
+      const originalSrc = img.currentSrc || img.src;
+      let triedProxy = false;
       img.addEventListener("error", () => {
+        if (!triedProxy && originalSrc && /^https?:/i.test(originalSrc)) {
+          triedProxy = true;
+          img.src = "https://images.weserv.nl/?url=" + encodeURIComponent(originalSrc) + "&w=600&h=600";
+          return;
+        }
         const fallback = document.createElement("div");
         fallback.className = "model-image model-image-placeholder";
         fallback.setAttribute("role", "img");
@@ -1469,10 +1478,10 @@
         model.className = "placeholder-model";
         model.textContent = title;
         const note = document.createElement("small");
-        note.textContent = "Foto del modelo pendiente de verificar";
+        note.textContent = "Imagen no disponible";
         fallback.append(icon, model, note);
         img.replaceWith(fallback);
-      }, { once: true });
+      });
     }
     if (link) {
       link.target = "_blank";
