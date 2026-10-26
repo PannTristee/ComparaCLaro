@@ -2652,7 +2652,49 @@
         ? '<p><a href="' + esc(product.link) + '" target="_blank" rel="sponsored nofollow noopener noreferrer">Consultar modelo en Amazon ↗</a></p>' : "";
       return '<article class="compare-product"><h3>' + esc(product.title) + '</h3><h4>Especificaciones por característica</h4><ul class="device-specs">' + specList + '</ul><p class="price-record"><strong>Precio registrado:</strong> ' + esc(product.price || "No verificado; consulta la tienda") + '</p>' + priceSourceLink + officialLink + amazonLink + '</article>';
     }).join("");
-    results.innerHTML = '<h2>Comparación de ' + chosen.length + ' productos</h2><h3>Tabla comparativa por característica</h3>' + compareTable + '<h3>Ficha individual de cada producto</h3><div class="compare-grid">' + cards + '</div><p class="compare-note">Las filas se extraen de los datos disponibles en cada ficha. «No indicado» significa que el catálogo no contiene ese dato; no implica que el producto carezca de esa característica. Los precios y la disponibilidad pueden cambiar.</p>';
+    // Veredicto orientativo: pondera adecuación técnica visible y precio cuando es interpretable.
+    // No sustituye una revisión editorial por uso concreto; los datos ausentes no se tratan como prestaciones negativas.
+    function verdictFor(items) {
+      const priceNumber = p => {
+        const match = String(p.price || "").match(/(?:^|[^\\d])([0-9]{1,4}(?:[.,][0-9]{2})?)\\s*€/);
+        return match ? Number(match[1].replace(",", ".")) : null;
+      };
+      const category = items[0].cat || "";
+      const signals = {
+        "Móviles": [/amoled|oled/i, /120\\s?hz/i, /5g/i, /o[ií]s/i, /\\b(50|64|108|200)\\s?mp\\b/i, /\\b(4500|5000|5500|6000)\\s?mah\\b/i],
+        "Portátiles": [/\\b(16|32|64)\\s?gb\\s?(?:de )?ram/i, /\\b(512\\s?gb|1\\s?tb|2\\s?tb)\\b/i, /ryzen 7|core ultra 7|core i7|ryzen 9|core ultra 9|core i9|apple m[2-5] pro|apple m[2-5] max/i, /rtx\\s?(?:40|50)\\d{2}|radeon rx/i, /oled|\\b2\\.5k\\b|\\b4k\\b|\\b120\\s?hz/i],
+        "Tablets": [/oled|amoled/i, /\\b(8|12|16)\\s?gb\\s?(?:de )?ram/i, /\\b(256\\s?gb|512\\s?gb|1\\s?tb)\\b/i, /120\\s?hz/i, /stylus|l[aá]piz/i],
+        "Monitores": [/oled|qd-oled|mini.?led/i, /4k|uhd|3840/i, /144\\s?hz|165\\s?hz|180\\s?hz|240\\s?hz|360\\s?hz/i, /hdr|displayhdr/i, /usb-c|kvm/i],
+        "Audio": [/anc|cancelaci[oó]n activa/i, /bluetooth 5\\.[34]/i, /multipunto/i, /\\b(30|40|50|60)\\s?h(?:oras)?\\b/i, /ipx[4-9]|ip5[0-9]/i],
+        "Televisores": [/oled|qd-oled|mini.?led/i, /4k|uhd|3840/i, /120\\s?hz|144\\s?hz/i, /dolby vision/i, /hdmi 2\\.1/i],
+        "Consolas y gaming": [/rtx\\s?(?:40|50)\\d{2}|radeon rx/i, /\\b(16|24|32)\\s?gb\\s?(?:de )?ram/i, /\\b(1|2)\\s?tb\\b/i, /oled/i, /120\\s?hz/i],
+        "Cocina": [/\\b(1700|1800|2000|2200)\\s?w\\b/i, /\\b(5|6|7|8|9|10)\\s?l(?:itros?)?\\b/i, /programas|modos/i, /lavavajillas/i, /temperatura/i],
+        "Hogar inteligente": [/2k|4k|\\b(2|3|4|5)\\s?mp\\b/i, /detecci[oó]n de personas/i, /\\b5\\s?ghz\\b/i, /ip6[0-9]/i, /matter|zigbee/i]
+      };
+      const rules = signals[category] || [/\\b(16|32|64)\\s?gb\\b/i, /\\b(512\\s?gb|1\\s?tb|2\\s?tb)\\b/i, /oled|amoled|mini.?led/i, /5g|wi-?fi 6|wi-?fi 7/i, /garant[ií]a|ip6[0-9]/i];
+      const scored = items.map(product => {
+        const text = String(product.desc || "");
+        const filled = rules.filter(rx => rx.test(text)).length;
+        const completeness = Math.min(1, text.length / 280);
+        return { product, price: priceNumber(product), score: filled * 2 + completeness };
+      });
+      const priced = scored.filter(x => x.price !== null && x.price > 0);
+      if (priced.length > 1) {
+        const min = Math.min(...priced.map(x => x.price));
+        const max = Math.max(...priced.map(x => x.price));
+        scored.forEach(x => { if (x.price !== null) x.score += max === min ? 1 : ((max - x.price) / (max - min)) * 2; });
+      }
+      scored.sort((a,b) => b.score - a.score);
+      const winner = scored[0];
+      const runner = scored[1];
+      const priceText = winner.price !== null ? " Precio detectado en la ficha: " + winner.price.toLocaleString("es-ES", {style:"currency",currency:"EUR"}) + "." : " No se ha podido interpretar un precio numérico fiable de esta ficha.";
+      const reason = winner.score - runner.score < 0.75
+        ? "La elección está muy ajustada: destaca por la combinación de especificaciones descritas y datos disponibles, pero conviene decidir según tu prioridad y verificar precios y variantes."
+        : "Es la opción más equilibrada según las prestaciones técnicas explícitamente descritas y, cuando se dispone de un importe interpretable, su relación con el precio. Los datos no publicados no se consideran carencias." ;
+      return '<section class="compare-verdict" aria-labelledby="verdict-title"><h3 id="verdict-title">¿Cuál es mejor?</h3><p><strong>Mi elección orientativa: ' + esc(winner.product.title) + '.</strong> ' + esc(reason + priceText) + '</p><p class="compare-note">Criterio automático orientativo para esta selección de ' + esc(category.toLocaleLowerCase("es")) + ': especificaciones relevantes detectadas en la descripción, detalle disponible y precio interpretable. No es una prueba de laboratorio ni una recomendación universal; confirma el SKU, el vendedor, la garantía y el precio final. Si priorizas un uso concreto (por ejemplo, autonomía, gaming o presupuesto), el ganador puede cambiar.</p></section>';
+    }
+    const verdict = verdictFor(chosen);
+    results.innerHTML = '<h2>Comparación de ' + chosen.length + ' productos</h2><h3>Tabla comparativa por característica</h3>' + compareTable + '<h3>Ficha individual de cada producto</h3><div class="compare-grid">' + cards + '</div>' + verdict + '<p class="compare-note">Las filas se extraen de los datos disponibles en cada ficha. «No indicado» significa que el catálogo no contiene ese dato; no implica que el producto carezca de esa característica. Los precios y la disponibilidad pueden cambiar.</p>';
     status.textContent = "Comparación lista: " + chosen.length + " modelos de " + categorySelect.value + ".";
     results.scrollIntoView({ behavior: "smooth", block: "start" });
   }
