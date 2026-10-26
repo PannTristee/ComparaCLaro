@@ -14,7 +14,7 @@
 <a class="skip" href="#comparador">Saltar al comparador</a>
 <header class="site-header"><a class="brand" href="./" aria-label="ComparaClaro, inicio"><span class="brand-mark">C</span><span>Compara<span class="brand-light">Claro</span><small>Tecnología sin complicaciones</small></span></a><nav aria-label="Principal"><a href="./">Inicio</a><a href="catalogo.html">Catálogo</a><a href="productos.html">Productos</a><a href="comparativas.html">Comparativas</a><a href="comparador.html" aria-current="page">Comparador</a><a href="metodologia.html">Metodología</a></nav></header>
 <main id="comparador">
-<section class="compare-intro"><p class="eyebrow">COMPARACIÓN A TU MEDIDA</p><h1>Cuatro productos.<br>Una decisión más fácil.</h1><p>Selecciona una categoría y compara hasta cuatro modelos por sus características, prestaciones y precio.</p></section>
+<section class="compare-intro"><p class="eyebrow">COMPARACIÓN A TU MEDIDA</p><h1>Cuatro productos.<br>Una decisión más fácil.</h1><p>Busca productos en todas las categorías o filtra por tipo. Compara hasta cuatro modelos por sus características, prestaciones y precio.</p></section>
 <section class="compare-wrap">
 <div class="compare-setup">
 <label for="device-type">1. ¿Qué tipo de dispositivo quieres comparar?</label>
@@ -22,7 +22,7 @@
 <div id="compare-tabs" class="compare-tabs" role="tablist" aria-label="Productos para comparar"></div>
 <div id="slot-panels"></div>
 <div class="compare-actions"><button id="compare-now" type="button">Comparar productos</button><button id="clear-all" class="secondary" type="button">Limpiar selección</button></div>
-<p id="compare-status" class="compare-status" aria-live="polite">Elige una categoría para empezar. Puedes seleccionar hasta cuatro modelos.</p>
+<p id="compare-status" class="compare-status" aria-live="polite">Puedes buscar en todas las categorías o filtrar por tipo. Selecciona hasta cuatro modelos.</p>
 </div>
 <section id="compare-results" class="compare-results" aria-live="polite"><div class="compare-empty">Tu comparación aparecerá aquí cuando elijas al menos dos productos.</div></section>
 
@@ -2381,8 +2381,9 @@
  const selected=[null,null,null,null]; let active=0;
  const categories=[...new Set(products.map(p=>p.cat))].sort((a,b)=>a.localeCompare(b,"es"));
  categories.forEach(c=>{const o=document.createElement("option");o.value=c;o.textContent=c;type.append(o)});
+ type.value="";
  const esc=s=>String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
- function filtered(){return products.filter(p=>p.cat===type.value)}
+ function filtered(){return products.filter(p=>!type.value||p.cat===type.value)}
  function renderTabs(){
   tabs.innerHTML="";panels.innerHTML="";
   for(let i=0;i<4;i++){
@@ -2526,7 +2527,7 @@
   results.innerHTML='<h2>Tu comparación</h2><div class="compare-grid">'+cards+'</div><div class="compare-verdict"><h3>¿Cuál es mejor?</h3><p>'+esc(verdict)+'</p></div>';
   status.textContent="Comparando "+ps.length+" productos. Los datos se extraen de las fichas disponibles; los precios oficiales se deben confirmar en el fabricante y no se inventan cuando no están publicados.";
  }
- type.addEventListener("change",()=>{selected.fill(null);active=0;renderTabs();results.innerHTML='<div class="compare-empty">Elige hasta cuatro modelos de la categoría seleccionada.</div>';status.textContent="Categoría: "+type.value+". Selecciona modelos en las cuatro pestañas."});
+ type.addEventListener("change",()=>{active=selected.findIndex(x=>!x);if(active<0)active=3;renderTabs();results.innerHTML='<div class="compare-empty">La selección se conserva al cambiar de filtro. Puedes comparar productos de categorías distintas; las prestaciones solo se comparan cuando son equivalentes.</div>';status.textContent=(type.value?"Filtro de categoría: "+type.value+". ":"Mostrando todas las categorías. ")+selected.filter(Boolean).length+" producto(s) ya seleccionado(s). Añade modelos en las pestañas."});
  document.querySelector("#compare-now").addEventListener("click",compare);
  document.querySelector("#clear-all").addEventListener("click",()=>{selected.fill(null);active=0;renderTabs();results.innerHTML='<div class="compare-empty">Tu comparación aparecerá aquí cuando elijas al menos dos productos.</div>';status.textContent="Selección borrada. Puedes elegir hasta cuatro modelos."});
  renderTabs();
