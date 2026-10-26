@@ -81,7 +81,12 @@
    "Impresión":[get("Tecnología",/\b(?:láser|inyección de tinta|inkjet|térmica)\b/i),get("Color",/\b(?:monocromo|color|blanco y negro)\b/i),get("Velocidad",/\b\d+\s*(?:ppm|páginas por minuto)\b/i),get("Conectividad",/\b(?:Wi-?Fi|Ethernet|USB-C|USB 2\.0)\b/i),get("Dúplex",/\b(?:dúplex automático|auto duplex)\b/i)]
   };
   const fields=rules[p.cat]||[...common,get("Pantalla",/\b\d{1,2}(?:[.,]\d+)?\s*(?:pulgadas|pulg\.|inch|")/i),get("Capacidad",/\b\d+(?:[.,]\d+)?\s*(?:TB|GB|mAh|W)\b/i)];
-  return fields.map(([label,value])=>({label,value})).filter(x=>x.value!=="No indicado en la ficha");
+  const found=fields.map(([label,value])=>({label,value})).filter(x=>x.value!=="No indicado en la ficha");
+  if(p.cat==="Móviles"&&!found.some(x=>x.label==="RAM")){
+   const pair=text.match(/\\b(\\d{1,2})\\s*\\/\\s*\\d{2,4}\\s*GB\\b/i);
+   if(pair)found.push({label:"RAM",value:pair[1]+" GB (según configuración indicada en el título)"});
+  }
+  return found;
  }
  function compare(){
   const ps=selected.filter(Boolean);
