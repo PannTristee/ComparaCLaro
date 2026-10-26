@@ -59,7 +59,7 @@
   }
  }
  function specs(p){
-  const text=[p.title,p.alt,p.desc].filter(Boolean).join(" ");
+  const text=[p.title,p.alt,p.desc].filter(Boolean).join(" ").replace(/&amp;/g,"&");
   const get=(label,re)=>{const m=text.match(re);return [label,m?m[0].replace(/\s+/g," ").trim():"No indicado en la ficha"]};
   const common=[get("Procesador",/(?:Intel Core Ultra [3579]\s*\w*|Intel Core i[3579]-?\w*|AMD Ryzen [3579]\s*\w*|Apple M[1-9](?: Pro| Max| Ultra)?|Snapdragon [\w+ -]+|MediaTek Dimensity \d+|Tensor G\d+)/i)];
   const rules={
@@ -88,7 +88,7 @@
   if(ps.length<2){results.innerHTML='<div class="compare-empty">Selecciona al menos dos modelos para compararlos.</div>';status.textContent="Necesitas al menos 2 productos.";return}
   const cards=ps.map(p=>{
    const details=specs(p).map(x=>'<li><strong>'+esc(x.label)+':</strong> '+esc(x.value)+'</li>').join("");
-   return '<article class="compare-product"><h3>'+esc(p.title)+'</h3><p><strong>'+esc(p.cat)+'</strong></p><h4>Datos de este modelo</h4><ul class="device-specs">'+(details||'<li>No hay especificaciones técnicas verificadas en la ficha.</li>')+'</ul>'+(p.price?'<p>Último precio registrado en el catálogo: <strong>'+esc(p.price)+'</strong></p>':'<p>Precio del catálogo no disponible.</p>')+(p.link?'<p><a href="'+esc(p.link)+'" target="_blank" rel="sponsored noopener noreferrer">Consultar precio y disponibilidad en Amazon ↗</a></p>':'<p>Sin enlace de tienda disponible.</p>')+'</article>';
+   return '<article class="compare-product"><h3>'+esc(p.title)+'</h3><h4>Datos</h4><ul class="device-specs">'+(details||'<li>No hay especificaciones técnicas verificadas en la ficha.</li>')+'</ul>'+(p.price?'<p>Último precio registrado en el catálogo: <strong>'+esc(p.price)+'</strong></p>':'<p>Precio del catálogo no disponible.</p>')+(p.link?'<p><a href="'+esc(p.link)+'" target="_blank" rel="sponsored noopener noreferrer">Consultar precio y disponibilidad en Amazon ↗</a></p>':'<p>Sin enlace de tienda disponible.</p>')+'</article>';
   }).join("");
   const table="";
   const counts=ps.map(p=>specs(p).filter(x=>x.value!=="No indicado en la ficha").length);
