@@ -88,24 +88,24 @@
   }
   const add=(label,value)=>{if(value&&!found.some(x=>x.label===label))found.push({label,value});};
   if(["Móviles","Tablets","Portátiles"].includes(p.cat)){
-   const pair=text.match(/\\b(\\d{1,2})\\s*\\/\\s*(\\d{2,4})\\s*GB\\b/i);
+   const pair=text.match(/\b(\d{1,2})\s*\/\s*(\d{2,4})\s*GB\b/i);
    if(pair){add("RAM",pair[1]+" GB (configuración del título)");add("Almacenamiento",pair[2]+" GB (configuración del título)");}
-   const ram=text.match(/\\b(\\d{1,2})\\s*GB\\s*(?:de\\s*)?(?:RAM|LPDDR[345X]*|DDR[345X]*)\\b/i);
+   const ram=text.match(/\b(\d{1,2})\s*GB\s*(?:de\s*)?(?:RAM|LPDDR[345X]*|DDR[345X]*)\b/i);
    if(ram)add("RAM",ram[1]+" GB");
-   const storage=text.match(/\\b(\\d+(?:[.,]\\d+)?)\\s*(TB|GB)\\s*(?:SSD|NVMe|UFS|de almacenamiento|de memoria interna)?\\b/i);
+   const storage=text.match(/\b(\d+(?:[.,]\d+)?)\s*(TB|GB)\s*(?:SSD|NVMe|UFS|de almacenamiento|de memoria interna)?\b/i);
    if(storage&&!found.some(x=>x.label==="Almacenamiento"))add("Almacenamiento",storage[1]+" "+storage[2].toUpperCase());
   }
   if(p.cat==="Consolas y gaming"){
-   const model=text.match(/\\b(PlayStation 5(?: Pro| Slim)?|PS5 Pro|PS5 Slim|Xbox Series [XS]|Nintendo Switch(?: Lite| OLED| 2)?|Steam Deck(?: OLED)?)\\b/i);
+   const model=text.match(/\b(PlayStation 5(?: Pro| Slim)?|PS5 Pro|PS5 Slim|Xbox Series [XS]|Nintendo Switch(?: Lite| OLED| 2)?|Steam Deck(?: OLED)?)\b/i);
    if(model)add("Modelo / plataforma",model[0]);
   }
   if(p.cat==="Móviles"||p.cat==="Tablets"){
-   const screen=text.match(/\\b(\\d{1,2}(?:[.,]\\d+)?)\\s*(?:pulgadas|pulg\\.|inch|in)\\b/i);
+   const screen=text.match(/\b(\d{1,2}(?:[.,]\d+)?)\s*(?:pulgadas|pulg\.|inch|in)\b/i);
    if(screen)add("Pantalla",screen[1]+" pulgadas (según ficha)");
-   const battery=text.match(/\\b(\\d{1,2}(?:[.,]\\d{3})?)\\s*mAh\\b/i);
+   const battery=text.match(/\b(\d{1,2}(?:[.,]\d{3})?)\s*mAh\b/i);
    if(battery)add("Batería",battery[1]+" mAh");
   }
-  const modelText=p.title.match(/(?:·|—|–| - )\\s*(.+)$/);
+  const modelText=p.title.match(/(?:·|—|–| - )\s*(.+)$/);
   if(modelText)add("Variante indicada",modelText[1].trim());
   return found;
  }
