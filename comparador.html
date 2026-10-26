@@ -58,33 +58,45 @@
    panels.append(panel);
   }
  }
- function money(p){const m=(p.price||"").match(/(?:€\s*)?([0-9][0-9.,]*)\s*€?/);if(!m)return null;let v=m[1];if(v.includes(",")&&v.includes("."))v=v.replace(/\./g,"").replace(",",".");else if(v.includes(","))v=v.replace(",",".");const n=Number(v);return Number.isFinite(n)?n:null}
- function rating(p){const m=(p.rating||"").match(/([0-5](?:[,.][0-9]+)?)\s*\/\s*5/);return m?Number(m[1].replace(",",".")):null}
+ function specs(p){
+  const text=[p.title,p.alt,p.desc].filter(Boolean).join(" ");
+  const get=(label,re)=>{const m=text.match(re);return [label,m?m[0].replace(/\s+/g," ").trim():"No indicado en la ficha"]};
+  const common=[get("Procesador",/(?:Intel Core Ultra [3579]\s*\w*|Intel Core i[3579]-?\w*|AMD Ryzen [3579]\s*\w*|Apple M[1-9](?: Pro| Max| Ultra)?|Snapdragon [\w+ -]+|MediaTek Dimensity \d+|Tensor G\d+)/i)];
+  const rules={
+   "Móviles":[get("Pantalla",/\b\d{1,2}(?:[.,]\d+)?\s*(?:pulgadas|pulg\.|inches|inch|")/i),get("RAM",/\b\d{1,2}\s*GB\s*(?:de\s*)?(?:RAM|LPDDR\d?X?)/i),get("Almacenamiento",/\b\d{2,4}\s*GB(?:\s*(?:UFS|eMMC))?\b/i),get("Batería",/\b\d{3,5}\s*mAh\b/i),get("Cámara",/\b(?:\d{2,3}\s*MP|cámara[^.]{0,50})/i),get("Conectividad",/\b(?:5G|4G|Wi-?Fi 7|Wi-?Fi 6E?|NFC)\b/i)],
+   "Tablets":[get("Pantalla",/\b\d{1,2}(?:[.,]\d+)?\s*(?:pulgadas|pulg\.|inches|inch|")/i),get("RAM",/\b\d{1,2}\s*GB\s*(?:de\s*)?RAM/i),get("Almacenamiento",/\b\d{2,4}\s*GB\b/i),get("Batería",/\b\d{3,5}\s*mAh\b/i),get("Conectividad",/\b(?:Wi-?Fi 7|Wi-?Fi 6E?|5G|LTE)\b/i),...common],
+   "Portátiles":[get("Pantalla",/\b\d{1,2}(?:[.,]\d+)?\s*(?:pulgadas|pulg\.|inches|inch|")/i),get("RAM",/\b\d{1,2}\s*GB\s*(?:de\s*)?(?:RAM|LPDDR\d?X?|DDR\d?)/i),get("Almacenamiento",/\b\d{2,4}\s*GB\b|\b\d(?:\.\d)?\s*TB\b/i),...common,get("Gráficos",/\b(?:RTX\s*\d{4,5}\w*|GTX\s*\d{4}\w*|Radeon\s+\w+|Intel Arc\s+\w*)/i),get("Sistema operativo",/\b(?:Windows 11|macOS|ChromeOS|Linux)\b/i)],
+   "Consolas y gaming":[get("Tipo / modelo",/\b(?:Steam Deck(?: OLED)?|Nintendo Switch(?: Lite| OLED)?|PlayStation 5(?: Pro| Slim)?|Xbox Series [XS])\b/i),get("Almacenamiento",/\b\d{2,4}\s*GB\b|\b\d(?:\.\d)?\s*TB\b/i),get("Pantalla",/\b\d{1,2}(?:[.,]\d+)?\s*(?:pulgadas|pulg\.|inches|inch|")/i),get("Resolución",/\b(?:4K|1440p|1080p|720p|Full HD|OLED)\b/i),get("Conectividad",/\b(?:Wi-?Fi 7|Wi-?Fi 6E?|Bluetooth \d(?:\.\d)?)\b/i)],
+   "Televisores":[get("Pantalla",/\b\d{2,3}\s*(?:pulgadas|pulg\.|inch|")/i),get("Panel",/\b(?:OLED|QD-OLED|QLED|Mini LED|LED)\b/i),get("Resolución",/\b(?:8K|4K UHD|4K|Full HD|1080p)\b/i),get("Frecuencia",/\b\d{2,3}\s*Hz\b/i),get("HDR",/\b(?:Dolby Vision|HDR10\+?|HLG)\b/i),get("Plataforma Smart TV",/\b(?:Google TV|webOS|Tizen|Fire TV|Android TV)\b/i)],
+   "Audio":[get("Tipo",/\b(?:auriculares|headphones|earbuds|altavoz|speaker|barra de sonido|soundbar|headset)\b/i),get("Conectividad",/\b(?:Bluetooth \d(?:\.\d)?|Bluetooth|USB-C|Wi-?Fi)\b/i),get("Cancelación de ruido",/\b(?:ANC|cancelación activa de ruido|noise cancelling)\b/i),get("Autonomía",/\b\d{1,3}\s*(?:horas|h)\b/i),get("Resistencia",/\bIP\d{2}\b/i)],
+   "Wearables":[get("Pantalla",/\b\d(?:[.,]\d+)?\s*(?:pulgadas|pulg\.|inch|")/i),get("Batería",/\b\d{2,5}\s*mAh\b/i),get("Autonomía",/\b\d{1,3}\s*(?:días|día|horas|h)\b/i),get("Sensores / salud",/\b(?:GPS|SpO2|ECG|NFC|frecuencia cardíaca)\b/i),get("Resistencia",/\b(?:5 ATM|IP\d{2})\b/i)],
+   "Redes":[get("Tipo",/\b(?:router|mesh|Wi-?Fi|punto de acceso|access point)\b/i),get("Estándar Wi-Fi",/\b(?:Wi-?Fi 7|Wi-?Fi 6E?|802\.11[a-z]+)\b/i),get("Velocidad anunciada",/\b\d+(?:\.\d+)?\s*(?:Gbps|Gb\/s|Mbps)\b/i),get("Puertos",/\b\d+\s*(?:puertos? Ethernet|LAN ports?|puertos? LAN)\b/i),get("Cobertura / pack",/\b(?:pack de \d+| \d+ unidades|hasta \d+\s*m²)\b/i)],
+   "Almacenamiento":[get("Capacidad",/\b\d+(?:[.,]\d+)?\s*(?:TB|GB)\b/i),get("Formato",/\b(?:SSD|HDD|NVMe|M\.2|2\.5 pulgadas)\b/i),get("Interfaz",/\b(?:USB 3\.\d|USB-C|PCIe [345]\.0|SATA)\b/i),get("Velocidad",/\b\d{3,5}\s*(?:MB\/s|GB\/s)\b/i)],
+   "Monitores":[get("Pantalla",/\b\d{2,3}(?:[.,]\d+)?\s*(?:pulgadas|pulg\.|inch|")/i),get("Resolución",/\b(?:5K|4K UHD|4K|QHD|WQHD|1440p|Full HD|1080p)\b/i),get("Frecuencia",/\b\d{2,3}\s*Hz\b/i),get("Panel",/\b(?:OLED|IPS|VA|TN|Mini LED)\b/i),get("Tiempo de respuesta",/\b\d\s*ms\b/i)],
+   "Fotografía":[get("Resolución",/\b\d{2,3}\s*MP\b/i),get("Vídeo",/\b(?:8K|4K|1080p)\s*(?:a\s*)?\d{0,3}\s*fps?\b/i),get("Zoom / lente",/\b(?:\d+x zoom|zoom óptico|f\/\d(?:\.\d)?)\b/i),get("Conectividad",/\b(?:Wi-?Fi|Bluetooth|USB-C)\b/i)],
+   "Cocina":[get("Capacidad",/\b\d+(?:[.,]\d+)?\s*(?:L|litros|ml)\b/i),get("Potencia",/\b\d{3,4}\s*W\b/i),get("Temperatura",/\b\d{2,3}\s*°C\b/i),get("Programas",/\b\d+\s*(?:programas|funciones)\b/i)],
+   "Hogar inteligente":[get("Conectividad",/\b(?:Wi-?Fi 7|Wi-?Fi 6E?|Wi-?Fi|Zigbee|Matter|Bluetooth)\b/i),get("Resolución / calidad",/\b(?:4K|2K|1080p|2\.5K)\b/i),get("Alimentación",/\b(?:batería|USB-C|solar|cableado)\b/i),get("Funciones",/\b(?:visión nocturna|detección de movimiento|sensor de temperatura|hub)\b/i)],
+   "Accesorios":[get("Tipo",/\b(?:ratón|mouse|teclado|dock|hub|cargador|adaptador|funda|controlador)\b/i),get("Conectividad",/\b(?:Bluetooth \d(?:\.\d)?|Bluetooth|USB-C|USB 3\.\d|2\.4 GHz)\b/i),get("Potencia",/\b\d{2,3}\s*W\b/i),get("Compatibilidad",/\b(?:Windows|macOS|Android|iOS|Nintendo Switch|PlayStation|Xbox)\b/i)],
+   "Lectores electrónicos":[get("Pantalla",/\b\d{1,2}(?:[.,]\d+)?\s*(?:pulgadas|pulg\.|inch|")/i),get("Almacenamiento",/\b\d{1,3}\s*GB\b/i),get("Luz",/\b(?:luz cálida|luz frontal|front light)\b/i),get("Resistencia",/\bIPX\d\b/i)],
+   "Impresión":[get("Tecnología",/\b(?:láser|inyección de tinta|inkjet|térmica)\b/i),get("Color",/\b(?:monocromo|color|blanco y negro)\b/i),get("Velocidad",/\b\d+\s*(?:ppm|páginas por minuto)\b/i),get("Conectividad",/\b(?:Wi-?Fi|Ethernet|USB-C|USB 2\.0)\b/i),get("Dúplex",/\b(?:dúplex automático|auto duplex)\b/i)]
+  };
+  const fields=rules[p.cat]||[...common,get("Pantalla",/\b\d{1,2}(?:[.,]\d+)?\s*(?:pulgadas|pulg\.|inch|")/i),get("Capacidad",/\b\d+(?:[.,]\d+)?\s*(?:TB|GB|mAh|W)\b/i)];
+  return fields.map(([label,value])=>({label,value})).filter(x=>x.value!=="No indicado en la ficha");
+ }
  function compare(){
   const ps=selected.filter(Boolean);
   if(ps.length<2){results.innerHTML='<div class="compare-empty">Selecciona al menos dos modelos para compararlos.</div>';status.textContent="Necesitas al menos 2 productos.";return}
-  const prices=ps.map(money),rates=ps.map(rating);const knownPrices=prices.filter(v=>v!==null);const knownRates=rates.filter(v=>v!==null);
-  const cheapest=knownPrices.length?Math.min(...knownPrices):null,highest=knownRates.length?Math.max(...knownRates):null;
-  const cards=ps.map((p,i)=>'<article class="compare-product">'+(p.img?'<img loading="lazy" src="'+esc(p.img)+'" alt="'+esc(p.alt)+'">':'')+'<h3>'+esc(p.title)+'</h3>'+(prices[i]!==null&&prices[i]===cheapest?'<span class="best">Menor precio registrado</span>':rates[i]!==null&&rates[i]===highest?'<span class="best">Mejor valoración registrada</span>':'')+(p.link?'<p><a href="'+esc(p.link)+'" target="_blank" rel="noopener noreferrer">Consultar modelo y precio ↗</a></p>':'')+'</article>').join("");
-  const rows=[
-   ["Categoría",ps.map(p=>p.cat)],
-   ["Precio en ficha",ps.map(p=>p.price||"No disponible")],
-   ["Valoración observada",ps.map(p=>p.rating||"No disponible")],
-   ["Descripción disponible",ps.map(p=>p.desc||"Sin descripción adicional en la ficha")],
-   ["Imagen",ps.map(p=>p.alt||"Imagen del catálogo")]
-  ];
-  const table='<div class="compare-table-wrap"><table class="compare-table"><thead><tr><th>Dato</th>'+ps.map(p=>'<th>'+esc(p.title)+'</th>').join("")+'</tr></thead><tbody>'+rows.map((row,ri)=>'<tr><th scope="row">'+esc(row[0])+'</th>'+row[1].map((v,i)=>{let winner=false;if(ri===1&&prices[i]!==null&&prices[i]===cheapest)winner=true;if(ri===2&&rates[i]!==null&&rates[i]===highest)winner=true;return '<td'+(winner?' class="winner"':'')+'>'+esc(v)+'</td>'}).join("")+'</tr>').join("")+'</tbody></table></div>';
-  let verdict="No hay datos suficientes para declarar un ganador global con rigor. Compara las características y confirma las especificaciones de la variante exacta.";
-  if(knownPrices.length===ps.length&&knownRates.length===ps.length){
-   const sorted=[...ps].sort((a,b)=>((rating(b)??0)-(rating(a)??0))||((money(a)??Infinity)-(money(b)??Infinity)));
-   verdict="Según los datos disponibles, "+sorted[0].title+" destaca por la mejor combinación de valoración publicada y precio observado. Es una orientación: las valoraciones pueden corresponder a variantes diferentes y el precio puede haber cambiado.";
-  }else if(knownPrices.length===ps.length){
-   const p=ps[prices.indexOf(cheapest)];verdict="Si tu prioridad es gastar menos, "+p.title+" tiene el menor precio registrado entre los modelos elegidos. El precio no determina por sí solo cuál es el mejor.";
-  }else if(knownRates.length===ps.length){
-   const p=ps[rates.indexOf(highest)];verdict=p.title+" tiene la mayor valoración registrada entre los modelos elegidos; comprueba también número de opiniones y variante.";
-  }
-  results.innerHTML='<h2>Tu comparación</h2><div class="compare-grid">'+cards+'</div>'+table+'<div class="compare-verdict"><h3>¿Cuál es mejor?</h3><p>'+esc(verdict)+'</p></div>';
-  status.textContent="Comparando "+ps.length+" productos. Los datos ausentes se indican expresamente.";
+  const fields=[...new Set(ps.flatMap(p=>specs(p).map(x=>x.label)))];
+  const cards=ps.map(p=>'<article class="compare-product"><h3>'+esc(p.title)+'</h3><p><strong>'+esc(p.cat)+'</strong></p>'+(p.price?'<p>Último precio registrado: <strong>'+esc(p.price)+'</strong></p>':'')+(p.link?'<p><a href="'+esc(p.link)+'" target="_blank" rel="noopener noreferrer">Consultar precio actual en la tienda ↗</a></p>':'<p>Sin enlace de tienda directa disponible.</p>')+'</article>').join("");
+  const rows=[["Precio actual en tienda",ps.map(p=>p.link?'<a href="'+esc(p.link)+'" target="_blank" rel="noopener noreferrer">Consultar precio vigente ↗</a>':"Enlace de precio no disponible")],["Último precio registrado en el catálogo",ps.map(p=>p.price||"No disponible")],...fields.map(field=>[field,ps.map(p=>(specs(p).find(x=>x.label===field)||{}).value||"No indicado en la ficha")])];
+  const table='<div class="compare-table-wrap"><table class="compare-table"><thead><tr><th>Característica</th>'+ps.map(p=>'<th>'+esc(p.title)+'</th>').join("")+'</tr></thead><tbody>'+rows.map((row,ri)=>'<tr><th scope="row">'+esc(row[0])+'</th>'+row[1].map(v=>'<td>'+v+'</td>').join("")+'</tr>').join("")+'</tbody></table></div>';
+  const counts=ps.map(p=>specs(p).filter(x=>x.value!=="No indicado en la ficha").length);
+  const best=Math.max(...counts), winners=ps.filter((p,i)=>counts[i]===best);
+  let verdict="No hay suficientes especificaciones verificadas en las fichas para elegir un ganador técnico con rigor. Comprueba los datos que faltan en la web del fabricante.";
+  if(best>0&&winners.length===1)verdict=winners[0].title+" tiene más especificaciones identificables en las fichas del catálogo. Esto no significa automáticamente que sea mejor; la elección depende de tus prioridades y de confirmar los datos en la web del fabricante.";
+  else if(best>0)verdict="Hay un empate en la cantidad de especificaciones identificables. Para elegir el mejor, compara las características importantes para tu uso y verifica las variantes exactas.";
+  results.innerHTML='<h2>Tu comparación</h2><div class="compare-grid">'+cards+'</div>'+table+'<div class="compare-verdict"><h3>¿Cuál es mejor?</h3><p>'+esc(verdict)+'</p><p>El precio vigente se consulta en el enlace de la tienda; el precio del catálogo es una captura anterior y puede haber cambiado.</p></div>';
+  status.textContent="Comparando "+ps.length+" productos. Solo se muestran especificaciones encontradas expresamente; los datos ausentes no se inventan.";
  }
  type.addEventListener("change",()=>{selected.fill(null);active=0;renderTabs();results.innerHTML='<div class="compare-empty">Elige hasta cuatro modelos de la categoría seleccionada.</div>';status.textContent="Categoría: "+type.value+". Selecciona modelos en las cuatro pestañas."});
  document.querySelector("#compare-now").addEventListener("click",compare);
