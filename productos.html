@@ -1456,31 +1456,35 @@
     card.dataset.search = normalize([title, card.dataset.category, card.textContent, linkedTerms].join(" "));
     const img = card.querySelector("img.model-image");
     if (img) {
-      // Si la tienda de origen bloquea el hotlink o falla su CDN, intenta cargar
-      // la misma foto a través del proxy de imágenes antes de mostrar un aviso.
-      const originalSrc = img.currentSrc || img.src;
+      // Reintenta con el proxy alternativo; si falla, muestra una ficha visual local
+      // para que nunca aparezca el icono de imagen rota.
+      const originalSrc = img.getAttribute("src") || "";
       let triedProxy = false;
-      img.addEventListener("error", () => {
-        if (!triedProxy && originalSrc && /^https?:/i.test(originalSrc)) {
-          triedProxy = true;
-          img.src = "https://images.weserv.nl/?url=" + encodeURIComponent(originalSrc.replace(/^https?:\/\//i, "")) + "&w=600&h=600&fit=contain";
-          return;
-        }
+      const showFallback = () => {
         const fallback = document.createElement("div");
         fallback.className = "model-image model-image-placeholder";
         fallback.setAttribute("role", "img");
-        fallback.setAttribute("aria-label", "Imagen específica no disponible para " + title);
+        fallback.setAttribute("aria-label", "Ilustración de " + title);
+        const icons = { "Móviles":"📱", "Tablets":"▣", "Portátiles":"💻", "Consolas y gaming":"🎮", "Monitores":"🖥️", "Audio":"🎧", "Televisores":"📺", "Fotografía":"📷", "Wearables":"⌚", "Redes":"📶", "Almacenamiento":"💾", "Accesorios":"🔌", "Cocina":"🍳", "Impresión":"🖨️", "Lectores electrónicos":"📚", "Hogar inteligente":"🏠" };
         const icon = document.createElement("span");
         icon.className = "placeholder-icon";
         icon.setAttribute("aria-hidden", "true");
-        icon.textContent = ({ "Móviles":"📱", "Tablets":"▣", "Portátiles":"💻", "Consolas y gaming":"🎮", "Monitores":"🖥️", "Audio":"🎧", "Televisores":"📺", "Fotografía":"📷", "Wearables":"⌚", "Redes":"📶", "Almacenamiento":"💾", "Accesorios":"🔌", "Cocina":"🍳", "Impresión":"🖨️", "Lectores electrónicos":"📚", "Hogar inteligente":"🏠" })[card.dataset.category] || "▧";
+        icon.textContent = icons[card.dataset.category] || "▧";
         const model = document.createElement("span");
         model.className = "placeholder-model";
         model.textContent = title;
         const note = document.createElement("small");
-        note.textContent = "Imagen no disponible";
+        note.textContent = "Vista ilustrativa del producto";
         fallback.append(icon, model, note);
         img.replaceWith(fallback);
+      };
+      img.addEventListener("error", () => {
+        if (!triedProxy && originalSrc && /^https?:/i.test(originalSrc)) {
+          triedProxy = true;
+          img.src = "https://wsrv.nl/?url=" + encodeURIComponent(originalSrc.replace(/^https?:\\/\\//i, "")) + "&w=600&h=600&fit=contain";
+          return;
+        }
+        showFallback();
       });
     }
     if (link) {
