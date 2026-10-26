@@ -2656,22 +2656,22 @@
     // No sustituye una revisión editorial por uso concreto; los datos ausentes no se tratan como prestaciones negativas.
     function verdictFor(items) {
       const priceNumber = p => {
-        const match = String(p.price || "").match(/(?:^|[^\\d])([0-9]{1,4}(?:[.,][0-9]{2})?)\\s*€/);
+        const match = String(p.price || "").match(/(?:^|[^\d])([0-9]{1,4}(?:[.,][0-9]{2})?)\s*€/);
         return match ? Number(match[1].replace(",", ".")) : null;
       };
       const category = items[0].cat || "";
       const signals = {
-        "Móviles": [/amoled|oled/i, /120\\s?hz/i, /5g/i, /o[ií]s/i, /\\b(50|64|108|200)\\s?mp\\b/i, /\\b(4500|5000|5500|6000)\\s?mah\\b/i],
-        "Portátiles": [/\\b(16|32|64)\\s?gb\\s?(?:de )?ram/i, /\\b(512\\s?gb|1\\s?tb|2\\s?tb)\\b/i, /ryzen 7|core ultra 7|core i7|ryzen 9|core ultra 9|core i9|apple m[2-5] pro|apple m[2-5] max/i, /rtx\\s?(?:40|50)\\d{2}|radeon rx/i, /oled|\\b2\\.5k\\b|\\b4k\\b|\\b120\\s?hz/i],
-        "Tablets": [/oled|amoled/i, /\\b(8|12|16)\\s?gb\\s?(?:de )?ram/i, /\\b(256\\s?gb|512\\s?gb|1\\s?tb)\\b/i, /120\\s?hz/i, /stylus|l[aá]piz/i],
-        "Monitores": [/oled|qd-oled|mini.?led/i, /4k|uhd|3840/i, /144\\s?hz|165\\s?hz|180\\s?hz|240\\s?hz|360\\s?hz/i, /hdr|displayhdr/i, /usb-c|kvm/i],
-        "Audio": [/anc|cancelaci[oó]n activa/i, /bluetooth 5\\.[34]/i, /multipunto/i, /\\b(30|40|50|60)\\s?h(?:oras)?\\b/i, /ipx[4-9]|ip5[0-9]/i],
-        "Televisores": [/oled|qd-oled|mini.?led/i, /4k|uhd|3840/i, /120\\s?hz|144\\s?hz/i, /dolby vision/i, /hdmi 2\\.1/i],
-        "Consolas y gaming": [/rtx\\s?(?:40|50)\\d{2}|radeon rx/i, /\\b(16|24|32)\\s?gb\\s?(?:de )?ram/i, /\\b(1|2)\\s?tb\\b/i, /oled/i, /120\\s?hz/i],
-        "Cocina": [/\\b(1700|1800|2000|2200)\\s?w\\b/i, /\\b(5|6|7|8|9|10)\\s?l(?:itros?)?\\b/i, /programas|modos/i, /lavavajillas/i, /temperatura/i],
-        "Hogar inteligente": [/2k|4k|\\b(2|3|4|5)\\s?mp\\b/i, /detecci[oó]n de personas/i, /\\b5\\s?ghz\\b/i, /ip6[0-9]/i, /matter|zigbee/i]
+        "Móviles": [/amoled|oled/i, /120\s?hz/i, /5g/i, /o[ií]s/i, /\b(50|64|108|200)\s?mp\b/i, /\b(4500|5000|5500|6000)\s?mah\b/i],
+        "Portátiles": [/\b(16|32|64)\s?gb\s?(?:de )?ram/i, /\b(512\s?gb|1\s?tb|2\s?tb)\b/i, /ryzen 7|core ultra 7|core i7|ryzen 9|core ultra 9|core i9|apple m[2-5] pro|apple m[2-5] max/i, /rtx\s?(?:40|50)\d{2}|radeon rx/i, /oled|\b2\.5k\b|\b4k\b|\b120\s?hz/i],
+        "Tablets": [/oled|amoled/i, /\b(8|12|16)\s?gb\s?(?:de )?ram/i, /\b(256\s?gb|512\s?gb|1\s?tb)\b/i, /120\s?hz/i, /stylus|l[aá]piz/i],
+        "Monitores": [/oled|qd-oled|mini.?led/i, /4k|uhd|3840/i, /144\s?hz|165\s?hz|180\s?hz|240\s?hz|360\s?hz/i, /hdr|displayhdr/i, /usb-c|kvm/i],
+        "Audio": [/anc|cancelaci[oó]n activa/i, /bluetooth 5\.[34]/i, /multipunto/i, /\b(30|40|50|60)\s?h(?:oras)?\b/i, /ipx[4-9]|ip5[0-9]/i],
+        "Televisores": [/oled|qd-oled|mini.?led/i, /4k|uhd|3840/i, /120\s?hz|144\s?hz/i, /dolby vision/i, /hdmi 2\.1/i],
+        "Consolas y gaming": [/rtx\s?(?:40|50)\d{2}|radeon rx/i, /\b(16|24|32)\s?gb\s?(?:de )?ram/i, /\b(1|2)\s?tb\b/i, /oled/i, /120\s?hz/i],
+        "Cocina": [/\b(1700|1800|2000|2200)\s?w\b/i, /\b(5|6|7|8|9|10)\s?l(?:itros?)?\b/i, /programas|modos/i, /lavavajillas/i, /temperatura/i],
+        "Hogar inteligente": [/2k|4k|\b(2|3|4|5)\s?mp\b/i, /detecci[oó]n de personas/i, /\b5\s?ghz\b/i, /ip6[0-9]/i, /matter|zigbee/i]
       };
-      const rules = signals[category] || [/\\b(16|32|64)\\s?gb\\b/i, /\\b(512\\s?gb|1\\s?tb|2\\s?tb)\\b/i, /oled|amoled|mini.?led/i, /5g|wi-?fi 6|wi-?fi 7/i, /garant[ií]a|ip6[0-9]/i];
+      const rules = signals[category] || [/\b(16|32|64)\s?gb\b/i, /\b(512\s?gb|1\s?tb|2\s?tb)\b/i, /oled|amoled|mini.?led/i, /5g|wi-?fi 6|wi-?fi 7/i, /garant[ií]a|ip6[0-9]/i];
       const scored = items.map(product => {
         const text = String(product.desc || "");
         const filled = rules.filter(rx => rx.test(text)).length;
