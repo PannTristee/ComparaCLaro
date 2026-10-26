@@ -51,7 +51,7 @@
     const input=document.createElement("input");input.className="slot-search";input.type="search";input.placeholder="Buscar por nombre de modelo…";input.setAttribute("aria-label","Buscar modelo");panel.append(input);
     const list=document.createElement("div");list.className="model-options";panel.append(list);
     const draw=()=>{const q=input.value.trim().toLocaleLowerCase("es");const available=filtered().filter(p=>(!q||p.title.toLocaleLowerCase("es").includes(q))&&(!selected.some((x,j)=>j!==i&&x&&x.id===p.id)));
-      list.innerHTML="";available.slice(0,80).forEach(p=>{const btn=document.createElement("button");btn.type="button";btn.className="model-option";btn.innerHTML=(p.img?'<img loading="lazy" src="'+esc(p.img)+'" alt="">':'')+"<span>"+esc(p.title)+"<small>"+esc(p.price||"Precio no disponible")+"</small></span>";btn.addEventListener("click",()=>{selected[i]=p;active=Math.min(i+1,3);renderTabs();status.textContent="Seleccionados: "+selected.filter(Boolean).length+" de 4. Puedes añadir más modelos o comparar ya."});list.append(btn)});
+      list.innerHTML="";available.slice(0,80).forEach(p=>{const btn=document.createElement("button");btn.type="button";btn.className="model-option";btn.innerHTML="<span>"+esc(p.title)+"<small>"+esc(p.price||"Precio no disponible")+"</small></span>";btn.addEventListener("click",()=>{selected[i]=p;active=Math.min(i+1,3);renderTabs();status.textContent="Seleccionados: "+selected.filter(Boolean).length+" de 4. Puedes añadir más modelos o comparar ya."});list.append(btn)});
       if(!available.length)list.innerHTML='<p class="compare-status">No hay coincidencias en esta categoría.</p>';
     };input.addEventListener("input",draw);draw();
    }
