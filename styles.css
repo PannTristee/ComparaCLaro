@@ -91,3 +91,6 @@
   .placeholder-model{font-size:14px}
   .model-photo-notice{font-size:12px}
 }
+
+
+.official-specs{margin:14px 0;padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:#fff}.official-specs summary{cursor:pointer;font-weight:800}.official-specs p{margin:10px 0}.official-specs ul{margin:8px 0;padding-left:20px}.official-specs li{margin:5px 0}.official-specs a{font-weight:750;text-underline-offset:3px}
