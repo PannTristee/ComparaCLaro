@@ -83,7 +83,7 @@
   const fields=rules[p.cat]||[...common,get("Pantalla",/\b\d{1,2}(?:[.,]\d+)?\s*(?:pulgadas|pulg\.|inch|")/i),get("Capacidad",/\b\d+(?:[.,]\d+)?\s*(?:TB|GB|mAh|W)\b/i)];
   const found=fields.map(([label,value])=>({label,value})).filter(x=>x.value!=="No indicado en la ficha");
   if(p.cat==="Móviles"&&!found.some(x=>x.label==="RAM")){
-   const pair=text.match(/\\b(\\d{1,2})\\s*\\/\\s*\\d{2,4}\\s*GB\\b/i);
+   const pair=text.match(/\b(\d{1,2})\s*\/\s*\d{2,4}\s*GB\b/i);
    if(pair)found.push({label:"RAM",value:pair[1]+" GB (según configuración indicada en el título)"});
   }
   const add=(label,value)=>{if(value&&!found.some(x=>x.label===label))found.push({label,value});};
